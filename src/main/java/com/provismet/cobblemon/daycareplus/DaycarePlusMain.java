@@ -30,58 +30,60 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletableFuture;
 
 public class DaycarePlusMain implements ModInitializer {
-	public static final String MODID = "daycareplus";
-	public static final Logger LOGGER = LoggerFactory.getLogger("Daycare+");
+    public static final String MODID = "daycareplus";
+    public static final Logger LOGGER = LoggerFactory.getLogger("Daycare+");
 
-	public static Identifier identifier (String path) {
-		return Identifier.of(MODID, path);
-	}
+    public static Identifier identifier (String path) {
+        return Identifier.of(MODID, path);
+    }
 
-	@Override
-	public void onInitialize () {
-		IncubatorTiers.load();
+    @Override
+    public void onInitialize () {
+        IncubatorTiers.load();
 
-		PolymerResourcePackUtils.addModAssets(MODID);
+        PolymerResourcePackUtils.addModAssets(MODID);
 
-		DPItems.init();
-		DPItemDataComponents.init();
-		DPItemGroups.register();
-		DPStats.init();
-		DPCommands.register();
+        DPItems.init();
+        DPItemDataComponents.init();
+        DPItemGroups.register();
+        DPStats.init();
+        DPCommands.register();
         DPPayloads.register();
         PacketCallbacksC2S.register();
 
-		CobblemonEventHandler.register();
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new BreedingUtils());
+        DaycarePlusOptions.reloadBlacklist();
 
-		// Load when player joins.
-		ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
-			CompletableFuture.runAsync(() -> IncubatorCollection.loadFromJson(serverPlayNetworkHandler.getPlayer()));
-		});
+        CobblemonEventHandler.register();
+        ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new BreedingUtils());
 
-		// Clean up incubators when a player logs out.
-		ServerPlayConnectionEvents.DISCONNECT.register((serverPlayNetworkHandler, minecraftServer) -> {
-			String playerUUID = serverPlayNetworkHandler.getPlayer().getUuidAsString();
-			CompletableFuture.runAsync(() -> IncubatorCollection.remove(minecraftServer, playerUUID));
-		});
+        // Load when player joins.
+        ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) -> {
+            CompletableFuture.runAsync(() -> IncubatorCollection.loadFromJson(serverPlayNetworkHandler.getPlayer()));
+        });
 
-		// Save when the server saves.
-		ServerLifecycleEvents.BEFORE_SAVE.register((minecraftServer, flush, force) -> {
-			CompletableFuture.runAsync(() -> IncubatorCollection.saveAll(minecraftServer));
-		});
+        // Clean up incubators when a player logs out.
+        ServerPlayConnectionEvents.DISCONNECT.register((serverPlayNetworkHandler, minecraftServer) -> {
+            String playerUUID = serverPlayNetworkHandler.getPlayer().getUuidAsString();
+            CompletableFuture.runAsync(() -> IncubatorCollection.remove(minecraftServer, playerUUID));
+        });
 
-		FabricLoader.getInstance().getEntrypointContainers("daycareplus", DaycarePlusInitializer.class).forEach(
-			initializer -> {
-				try {
-					initializer.getEntrypoint().onInitialize();
-				}
-				catch (Throwable e) {
-					DaycarePlusMain.LOGGER.error("Daycare+ failed to initialise sidemod entrypoint from {} due to errors provided by it:", initializer.getProvider().getMetadata().getName(), e);
-				}
-			}
-		);
+        // Save when the server saves.
+        ServerLifecycleEvents.BEFORE_SAVE.register((minecraftServer, flush, force) -> {
+            CompletableFuture.runAsync(() -> IncubatorCollection.saveAll(minecraftServer));
+        });
+
+        FabricLoader.getInstance().getEntrypointContainers("daycareplus", DaycarePlusInitializer.class).forEach(
+                initializer -> {
+                    try {
+                        initializer.getEntrypoint().onInitialize();
+                    }
+                    catch (Throwable e) {
+                        DaycarePlusMain.LOGGER.error("Daycare+ failed to initialise sidemod entrypoint from {} due to errors provided by it:", initializer.getProvider().getMetadata().getName(), e);
+                    }
+                }
+        );
 
         if (DaycarePlusOptions.doCobblemonSizeVariationCompatibility() && FabricLoader.getInstance().isModLoaded("cobblemonsizevariations"))
             DaycarePlusEvents.EGG_PROPERTIES_CREATED.register(new CobblemonSizeVariationCompatibility());
-	}
+    }
 }

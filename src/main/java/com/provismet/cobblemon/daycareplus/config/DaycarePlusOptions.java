@@ -67,11 +67,10 @@ public class DaycarePlusOptions {
     private static boolean cobblemonSizeVariation = true;
 
     // Breeding Restrictions
-    private static Set<PokemonProperties> breedingBlacklist = new HashSet<>();
+    private static Set<String> breedingBlacklistStrings = new HashSet<>();
 
     static {
         load();
-        loadBreedingConfig();
     }
 
     public static long getTicksPerEggAttempt () {
@@ -82,7 +81,20 @@ public class DaycarePlusOptions {
         return successRatePerEggAttempt;
     }
 
-    public static Set<PokemonProperties> getBreedingBlacklist () { return  breedingBlacklist; }
+    public static Set<PokemonProperties> getBreedingBlacklist() {
+        Set<PokemonProperties> parsedBlacklist = new HashSet<>();
+
+        for (String propertyString : breedingBlacklistStrings) {
+            try {
+                PokemonProperties pokemonProperties = PokemonProperties.Companion.parse(propertyString);
+                parsedBlacklist.add(pokemonProperties);
+            } catch (Exception exception) {
+                DaycarePlusMain.LOGGER.error("Failed to parse breeding blacklist property at runtime: {}", propertyString, exception);
+            }
+        }
+
+        return parsedBlacklist;
+    }
 
     public static int getPastureInventorySize () {
         return pastureInventorySize;
@@ -158,36 +170,36 @@ public class DaycarePlusOptions {
 
     public static void save () {
         JsonBuilder builder = new JsonBuilder()
-            .append(
-                "egg_production", new JsonBuilder()
-                    .append("ticks_per_egg_attempt", ticksPerEggAttempt)
-                    .append("success_rate_per_egg_attempt", successRatePerEggAttempt)
-                    .append("pasture_inventory_size", pastureInventorySize)
-                    .append("max_pastures_per_player", maxPasturesPerPlayer)
-                    .append("show_shiny_chance", showShinyChance)
-                    .append("allow_hoppers", allowHoppers))
-            .append(
-                "competitive_mode", new JsonBuilder()
-                    .append("use_competitive_mode", competitiveBreeding)
-                    .append("allow_breeding_without_fertility", allowBreedingWithoutFertility)
-                    .append("consume_held_items", consumeHeldItems)
-                    .append("eggs_inherit_fertility", eggsInheritFertility)
-                    .append("max_fertility", maxFertility))
-            .append(
-                "shiny_chance", new JsonBuilder()
-                    .append("use_event_trigger", useShinyEvent)
-                    .append("standard_multiplier", shinyChanceMultiplier)
-                    .append("masuda_multiplier", masudaMultiplier)
-                    .append("crystal_multiplier", crystalMultiplier)
-                    .append("shiny_booster_rate", shinyBoosterRate))
-            .append(
-                "breeding_rules", new JsonBuilder()
-                    .append("inherit_moves_from_both_parents", inheritEggMovesFromBothParents)
-                    .append("ticks_per_egg_cycle", pointsPerEggCycle)
-                    .append("show_egg_tooltip", showEggTooltip))
-            .append(
-                "compatibility_features", new JsonBuilder()
-                    .append("CobblemonSizeVariation", cobblemonSizeVariation));
+                .append(
+                        "egg_production", new JsonBuilder()
+                                .append("ticks_per_egg_attempt", ticksPerEggAttempt)
+                                .append("success_rate_per_egg_attempt", successRatePerEggAttempt)
+                                .append("pasture_inventory_size", pastureInventorySize)
+                                .append("max_pastures_per_player", maxPasturesPerPlayer)
+                                .append("show_shiny_chance", showShinyChance)
+                                .append("allow_hoppers", allowHoppers))
+                .append(
+                        "competitive_mode", new JsonBuilder()
+                                .append("use_competitive_mode", competitiveBreeding)
+                                .append("allow_breeding_without_fertility", allowBreedingWithoutFertility)
+                                .append("consume_held_items", consumeHeldItems)
+                                .append("eggs_inherit_fertility", eggsInheritFertility)
+                                .append("max_fertility", maxFertility))
+                .append(
+                        "shiny_chance", new JsonBuilder()
+                                .append("use_event_trigger", useShinyEvent)
+                                .append("standard_multiplier", shinyChanceMultiplier)
+                                .append("masuda_multiplier", masudaMultiplier)
+                                .append("crystal_multiplier", crystalMultiplier)
+                                .append("shiny_booster_rate", shinyBoosterRate))
+                .append(
+                        "breeding_rules", new JsonBuilder()
+                                .append("inherit_moves_from_both_parents", inheritEggMovesFromBothParents)
+                                .append("ticks_per_egg_cycle", pointsPerEggCycle)
+                                .append("show_egg_tooltip", showEggTooltip))
+                .append(
+                        "compatibility_features", new JsonBuilder()
+                                .append("CobblemonSizeVariation", cobblemonSizeVariation));
 
         try (FileWriter writer = new FileWriter(FILE.toFile())) {
             writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(builder.getJson()));
@@ -261,25 +273,23 @@ public class DaycarePlusOptions {
             JsonReader reader = JsonReader.file(BLACKLIST_FILE.toFile());
             if (reader != null) {
                 reader.getArray("breeding_blacklist").ifPresent(list -> {
-                    breedingBlacklist = new HashSet<>();
-                    for (JsonElement element : list){
-                        if (element instanceof JsonPrimitive primitive && primitive.isString()){
-                            breedingBlacklist.add(PokemonProperties.Companion.parse(primitive.getAsString()));
-                            try {
-                                breedingBlacklist.add(PokemonProperties.Companion.parse(primitive.getAsString()));
-                            } catch (Exception e) {
-                                DaycarePlusMain.LOGGER.error("Failed to parse breeding blacklist property: {}", primitive.getAsString(), e);
-                            }
+                    Set<String> newBreedingBlacklistStrings = new HashSet<>();
+
+                    for (JsonElement element : list) {
+                        if (element instanceof JsonPrimitive primitive && primitive.isString()) {
+                            String propertyString = primitive.getAsString();
+                            newBreedingBlacklistStrings.add(propertyString);
                         }
                     }
+                    breedingBlacklistStrings = newBreedingBlacklistStrings;
                 });
             }
         }
         catch (FileNotFoundException e) {
-            DaycarePlusMain.LOGGER.info("No breeding restrictions config found, creating default.");
+            DaycarePlusMain.LOGGER.info("No Daycare+ breeding blacklist found, creating default.");
         }
         catch (Exception e) {
-            DaycarePlusMain.LOGGER.error("Error reading breeding restrictions config: ", e);
+            DaycarePlusMain.LOGGER.error("Error reading Daycare+ breeding_blacklist.json: ", e);
         }
         saveBreedingConfig();
     }
@@ -292,8 +302,8 @@ public class DaycarePlusOptions {
         JsonBuilder builder = new JsonBuilder();
 
         JsonArray blacklistArray = new JsonArray();
-        for (PokemonProperties propertyString : breedingBlacklist) {
-            blacklistArray.add(propertyString.asString(" "));
+        for (String propertyString : breedingBlacklistStrings) {
+            blacklistArray.add(propertyString);
         }
         builder.append("breeding_blacklist", blacklistArray);
 
@@ -304,4 +314,6 @@ public class DaycarePlusOptions {
             DaycarePlusMain.LOGGER.error("Error whilst saving breeding restrictions config: ", e);
         }
     }
+
+
 }
