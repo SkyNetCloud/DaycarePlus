@@ -1,0 +1,9 @@
+{
+  "form_pre_evolutions": {
+    "normal": {
+      "form_id": "whitestriped",
+      "species": "cobblemon:basculin"
+    }
+  },
+  "species": "cobblemon:basculegion"
+}

@@ -1,0 +1,9 @@
+{
+  "form_pre_evolutions": {
+    "normal": {
+      "form_id": "galar",
+      "species": "cobblemon:yamask"
+    }
+  },
+  "species": "cobblemon:runerigus"
+}

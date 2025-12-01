@@ -1,0 +1,9 @@
+{
+  "form_pre_evolutions": {
+    "hisui": {
+      "form_id": "hisuibias",
+      "species": "cobblemon:rufflet"
+    }
+  },
+  "species": "cobblemon:braviary"
+}

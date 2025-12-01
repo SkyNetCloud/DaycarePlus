@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "i": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "r": {
+      "item": "daycareplus:diamond_incubator"
+    }
+  },
+  "pattern": [
+    "iii",
+    "grg",
+    "iii"
+  ],
+  "result": {
+    "count": 1,
+    "id": "daycareplus:netherite_incubator"
+  }
+}

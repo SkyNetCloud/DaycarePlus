@@ -1,0 +1,9 @@
+{
+  "form_pre_evolutions": {
+    "galar": {
+      "form_id": "galarbias",
+      "species": "cobblemon:mimejr"
+    }
+  },
+  "species": "cobblemon:mrmime"
+}

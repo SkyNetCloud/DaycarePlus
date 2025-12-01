@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "daycareplus:item/iron_incubator_full"
+  }
+}

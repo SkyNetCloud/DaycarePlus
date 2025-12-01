@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "com.provismet.cobblemon.daycareplus.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "CobblemonInitialiserMixin",
+        "PastureBlockEntityMixin",
+        "PastureBlockMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

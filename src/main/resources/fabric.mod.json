@@ -1,0 +1,60 @@
+{
+	"schemaVersion": 1,
+	"id": "daycareplus",
+	"version": "${version}",
+	"name": "Daycare+",
+	"description": "Adds intuitive and customisable breeding to Cobblemon.",
+	"authors": [
+		"Provismet"
+	],
+	"contributors": [
+		"Oculyn"
+	],
+	"contact": {
+		"homepage": "https://github.com/Provismet/DaycarePlus",
+		"sources": "https://github.com/Provismet/DaycarePlus",
+        "issues": "https://github.com/Provismet/DaycarePlus/issues"
+	},
+	"license": "Lily License - Server v1.0",
+	"icon": "assets/daycareplus/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.provismet.cobblemon.daycareplus.DaycarePlusMain"
+		],
+        "client": [
+            "com.provismet.cobblemon.daycareplus.DaycarePlusClient"
+        ],
+		"fabric-datagen": [
+			"com.provismet.cobblemon.daycareplus.datagen.DaycarePlusDatagen"
+		],
+        "modmenu": [
+            "com.provismet.cobblemon.daycareplus.config.menu.DPModMenuHook"
+        ]
+	},
+	"mixins": [
+		"daycareplus.mixins.json",
+        {
+            "environment": "client",
+            "config": "daycareplus.client.mixins.json"
+        }
+	],
+	"accessWidener": "daycareplus.accesswidener",
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"cobblemon": "~1.7.0",
+        "lilylib": "*",
+        "polymer-core": "*",
+        "polymer-common": "*"
+	},
+    "custom": {
+        "modmenu": {
+            "links": {
+                "wiki.lilylib.link": "https://github.com/Provismet/DaycarePlus/wiki"
+            }
+        }
+    }
+}

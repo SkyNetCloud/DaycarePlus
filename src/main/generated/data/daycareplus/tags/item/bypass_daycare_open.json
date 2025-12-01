@@ -1,0 +1,11 @@
+{
+  "values": [
+    {
+      "id": "#daycareplus:incubators",
+      "required": false
+    },
+    "daycareplus:daycare_spark",
+    "daycareplus:daycare_booster",
+    "daycareplus:shiny_booster"
+  ]
+}

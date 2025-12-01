@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "com.provismet.cobblemon.daycareplus.cmixin",
+    "compatibilityLevel": "JAVA_21",
+    "client": [
+        "PCGUIMixin",
+        "StatWidgetMixin",
+        "SummaryMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
