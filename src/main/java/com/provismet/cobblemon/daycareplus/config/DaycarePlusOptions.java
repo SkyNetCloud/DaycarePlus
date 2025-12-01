@@ -67,7 +67,6 @@ public class DaycarePlusOptions {
     private static boolean cobblemonSizeVariation = true;
 
     // Breeding Restrictions
-    private static Set<String> breedingBlacklistStrings = new HashSet<>();
     private static Set<PokemonProperties> breedingBlacklist = new HashSet<>();
 
     static {
@@ -254,7 +253,6 @@ public class DaycarePlusOptions {
 
     private static void loadBreedingConfig() {
         if (!BLACKLIST_FILE.toFile().exists()) {
-            setDefaultBreedingRestrictions();
             saveBreedingConfig();
             return;
         }
@@ -264,15 +262,13 @@ public class DaycarePlusOptions {
             if (reader != null) {
                 reader.getArray("breeding_blacklist").ifPresent(list -> {
                     breedingBlacklist = new HashSet<>();
-                    breedingBlacklistStrings = new HashSet<>();
                     for (JsonElement element : list){
                         if (element instanceof JsonPrimitive primitive && primitive.isString()){
-                            String propertyString = primitive.getAsString();
-                            breedingBlacklistStrings.add(propertyString);
+                            breedingBlacklist.add(PokemonProperties.Companion.parse(primitive.getAsString()));
                             try {
-                                breedingBlacklist.add(PokemonProperties.Companion.parse(propertyString));
+                                breedingBlacklist.add(PokemonProperties.Companion.parse(primitive.getAsString()));
                             } catch (Exception e) {
-                                DaycarePlusMain.LOGGER.error("Failed to parse breeding blacklist property: {}", propertyString, e);
+                                DaycarePlusMain.LOGGER.error("Failed to parse breeding blacklist property: {}", primitive.getAsString(), e);
                             }
                         }
                     }
@@ -281,11 +277,9 @@ public class DaycarePlusOptions {
         }
         catch (FileNotFoundException e) {
             DaycarePlusMain.LOGGER.info("No breeding restrictions config found, creating default.");
-            setDefaultBreedingRestrictions();
         }
         catch (Exception e) {
             DaycarePlusMain.LOGGER.error("Error reading breeding restrictions config: ", e);
-            setDefaultBreedingRestrictions();
         }
         saveBreedingConfig();
     }
@@ -298,8 +292,8 @@ public class DaycarePlusOptions {
         JsonBuilder builder = new JsonBuilder();
 
         JsonArray blacklistArray = new JsonArray();
-        for (String propertyString : breedingBlacklistStrings) {
-            blacklistArray.add(propertyString);
+        for (PokemonProperties propertyString : breedingBlacklist) {
+            blacklistArray.add(propertyString.asString(" "));
         }
         builder.append("breeding_blacklist", blacklistArray);
 
@@ -310,9 +304,4 @@ public class DaycarePlusOptions {
             DaycarePlusMain.LOGGER.error("Error whilst saving breeding restrictions config: ", e);
         }
     }
-
-    private static void setDefaultBreedingRestrictions() {
-        breedingBlacklist = new HashSet<>();
-    }
-
 }
